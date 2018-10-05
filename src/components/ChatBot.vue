@@ -28,7 +28,8 @@
                               <div v-for="(speaker, index) in conversation" :key="index" style="position: relative;">
                                   <template v-if="speaker.bot">
                                       <bot-chat :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat>
-                                      <question-selects v-if="speaker.question" @selectquestion="selectQuestion"></question-selects>
+                                      <!-- <question-selects v-if="speaker.question" @selectquestion="selectQuestion"></question-selects> -->
+                                      <contents-card></contents-card>
                                   </template>
                                   <!-- <bot-chat v-if="speaker.bot" :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat> -->
                                   <user-chat v-else :messages="speaker.chats" :minute="speaker.minute_time"></user-chat>
@@ -49,10 +50,11 @@ import BotChat from './BotChat.vue'
 import UserChat from './UserChat.vue'
 import MessageInput from './MessageInput.vue'
 import QuestionSelects from './QuestionSelects.vue'
+import ContentsCard from './ContentsCard.vue'
 
 export default {
   name: 'chat-bot',
-  components: {BotChat, UserChat, MessageInput, QuestionSelects},
+  components: {BotChat, UserChat, MessageInput, QuestionSelects, ContentsCard},
   data() {
         return {
             chatbot: false,
