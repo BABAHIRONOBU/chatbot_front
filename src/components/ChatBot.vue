@@ -229,6 +229,7 @@ export default {
     transition: none 0s ease 0s;
     background: none transparent;
     opacity: 1;
+    font-family: "Helvetica Nene", Helvetica, Arial, "맑은 고딕", "Malgun gothic", sans-serif;
 }
 
 .brs-chatbot-container {
