@@ -28,8 +28,8 @@
                               <div v-for="(speaker, index) in conversation" :key="index" style="position: relative;">
                                   <template v-if="speaker.bot">
                                       <bot-chat :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat>
-                                      <!-- <question-selects v-if="speaker.question" @selectquestion="selectQuestion"></question-selects> -->
-                                      <contents-card></contents-card>
+                                      <question-selects v-if="speaker.question" @selectquestion="selectQuestion"></question-selects>
+                                      <!-- <contents-card></contents-card> -->
                                   </template>
                                   <!-- <bot-chat v-if="speaker.bot" :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat> -->
                                   <user-chat v-else :messages="speaker.chats" :minute="speaker.minute_time"></user-chat>
@@ -52,6 +52,8 @@ import MessageInput from './MessageInput.vue'
 import QuestionSelects from './QuestionSelects.vue'
 import ContentsCard from './ContentsCard.vue'
 
+import URLS from '../urls.js'
+
 export default {
   name: 'chat-bot',
   components: {BotChat, UserChat, MessageInput, QuestionSelects, ContentsCard},
@@ -59,6 +61,7 @@ export default {
         return {
             chatbot: false,
             brs_style: 'width: 76px !important; height: 76px !important; bottom: 24px; right: 24px;',
+            access_token: '',
             bot_chat_types: {
                 plain_type: {
                     joined_msg_list: [
@@ -107,7 +110,15 @@ export default {
                     orders: false,
                     order_items: false
                 }
-            ]
+            ],
+            contents: []
+        }
+    },
+    computed: {
+        headers: {
+            'Authorization': 'Bearer ' + this.access_token,
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
         }
     },
     methods: {
@@ -136,6 +147,7 @@ export default {
         selectQuestion: function(id, question) {
             var bot_chat_type = 'orders_type';
             this.addChatSet(question, bot_chat_type);
+            this.fetchOrders('2018-09-01', '2018-10-08');
         },
 
         addChatSet: function(user_msg, bot_chat_type) {
@@ -204,6 +216,19 @@ export default {
                 var chats_wrapper = document.querySelector('.brs-messages');
                 chats_wrapper.scrollTop = chats_wrapper.scrollHeight;
             }
+        },
+        fetchOrders: function(start_date, end_date) {
+            this.$axios.get(URLS.ORDERS, {
+                params: {start_date: start_date, end_date: end_date},
+                headers: this.headers
+            })
+            .then((response) => {
+                console.log(response);
+                this.contents = response.date;
+            })
+            .catch((msg) => {
+                console.log('error', msg);
+            })
         }
     },
     mounted: function() {
