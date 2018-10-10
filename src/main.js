@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import ChatBot from './components/ChatBot.vue'
+import App from './App.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faCommentAlt, faHome, faTimes, faTruck, faUndoAlt, faTimesCircle, faWonSign, faPiggyBank, faBox, faShoppingCart, faCalendarAlt, faArchive } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -15,6 +15,6 @@ Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 
 new Vue({
-    el: '#brs',
-    render: h => h(ChatBot)
+  el: '#app',
+  render: h => h(App)
 })

@@ -29,7 +29,7 @@
                                   <template v-if="speaker.bot">
                                       <bot-chat :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat>
                                       <question-selects v-if="speaker.question" @selectquestion="selectQuestion"></question-selects>
-                                      <!-- <contents-card></contents-card> -->
+                                      <contents-card></contents-card>
                                   </template>
                                   <!-- <bot-chat v-if="speaker.bot" :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat> -->
                                   <user-chat v-else :messages="speaker.chats" :minute="speaker.minute_time"></user-chat>
@@ -115,10 +115,12 @@ export default {
         }
     },
     computed: {
-        headers: {
+        headers: function() {
+            return {
             'Authorization': 'Bearer ' + this.access_token,
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
+            }
         }
     },
     methods: {
@@ -147,7 +149,7 @@ export default {
         selectQuestion: function(id, question) {
             var bot_chat_type = 'orders_type';
             this.addChatSet(question, bot_chat_type);
-            this.fetchOrders('2018-09-01', '2018-10-08');
+            // this.fetchOrders('2018-09-01', '2018-10-08');
         },
 
         addChatSet: function(user_msg, bot_chat_type) {
@@ -217,19 +219,19 @@ export default {
                 chats_wrapper.scrollTop = chats_wrapper.scrollHeight;
             }
         },
-        fetchOrders: function(start_date, end_date) {
-            this.$axios.get(URLS.ORDERS, {
-                params: {start_date: start_date, end_date: end_date},
-                headers: this.headers
-            })
-            .then((response) => {
-                console.log(response);
-                this.contents = response.date;
-            })
-            .catch((msg) => {
-                console.log('error', msg);
-            })
-        }
+        // fetchOrders: function(start_date, end_date) {
+        //     this.$axios.get(URLS.ORDERS, {
+        //         params: {start_date: start_date, end_date: end_date},
+        //         headers: this.headers
+        //     })
+        //     .then((response) => {
+        //         console.log(response);
+        //         this.contents = response.date;
+        //     })
+        //     .catch((msg) => {
+        //         console.log('error', msg);
+        //     })
+        // }
     },
     mounted: function() {
         this.scrollToEnd();
@@ -241,361 +243,4 @@ export default {
 </script>
 
 <style>
-#brs {
-    border: none;
-    display: block;
-    position: fixed;
-    top: auto;
-    left: auto;
-    visibility: visible;
-    z-index: 2147483647;
-    max-height: 100vh;
-    max-width: 100vw;
-    transition: none 0s ease 0s;
-    background: none transparent;
-    opacity: 1;
-    font-family: "Helvetica Nene", Helvetica, Arial, "맑은 고딕", "Malgun gothic", sans-serif;
-}
-
-.brs-chatbot-container {
-    position: absolute;
-    z-index: 2147483647;
-    width: 100%;
-    height: 100%;
-    color: #333;
-    font-size: 16px;
-    overflow: hidden;
-}
-
-.brs-chatbot-container * {
-    box-sizing: border-box;
-    outline: none;
-}
-
-.brs-chatbot-close {
-    position: absolute;
-    bottom: 0px;
-    width: 100%;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-pack: end;
-    justify-content: flex-end;
-    -ms-flex-align: end;
-    align-items: flex-end;
-    padding: .75em .75em .75em 1rem;
-    -ms-flex-direction: column;
-    flex-direction: column;
-}
-
-.brs-chatbot-close button {
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-align: center;
-    align-items: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-    z-index: 1;
-    width: 52px;
-    height: 52px;
-    cursor: pointer;
-    border-radius: .3125rem;
-    box-shadow: 0 2px 6px 0 rgb(0, 0, 0, .4);
-    overflow: hidden;
-    padding: 0;
-    border: none;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
-    position: relative;
-}
-
-.brs-chatbot-close button i {
-    width: 100%;
-    font-size: 20px;
-}
-
-.brs-chatbot-open {
-    height: 100%;
-    width: 100%;
-    padding: 20px;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-direction: column;
-    flex-direction: column;
-}
-
-.brs-messanger-content {
-    border-radius: 10px;
-    box-shadow: 0 5px 25px 0 rgba(0, 0, 0, .13);
-    background-color: #fff;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    height: 100%;
-}
-
-.brs-messanger-header {
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    -ms-flex-align: center;
-    align-items: center;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
-    font-weight: 500;
-    box-shadow: 0 15px 25px -13px rgba(0, 0, 0, .13);
-    overflow: hidden;
-    z-index: 5;
-    height: 60px;
-    padding: 0 .8rem;
-}
-
-.brs-chatbot-icon-wrapper {
-    width: 35px;
-    height: 35px;
-    background-color: #fff;
-    border-radius: 50%;
-    border: 2px solid #fff;
-}
-
-img.brs-chatbot-icon {
-    width: 100%;
-    height: 100%;
-}
-
-.brs-chatbot-name {
-    font-size: 16px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    margin-left: 10px;
-}
-
-.brs-messanger-header button {
-    text-align: right;
-    vertical-align: middle;
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    padding: 0;
-    opacity: .6;
-    transition: all .3s ease;
-    min-height: 30px;
-    color: white;
-    margin-left: 18px;
-}
-
-.brs-messanger-header button:hover {
-    opacity: 1;
-}
-
-.brs-messanger-header button i {
-    width: 100%;
-    font-size: 24px;
-}
-
-.brs-messanger-header button i.brs-font-home {
-    font-size: 22px;
-}
-
-.brs-conversation {
-    -ms-flex: 1;
-    flex: 1;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    min-height: 1px;
-}
-
-.brs-messages {
-    -ms-flex: 1;
-    flex: 1;
-    overflow-y: auto;
-    -ms-flex-positive: 1;
-    flex-grow: 1;
-    padding: 0 .65rem 1rem;
-}
-
-.brs-message {
-    overflow: hidden;
-    width: auto;
-    max-width: 100%;
-    display: flex;
-    margin: .5rem 0;
-    padding: .5rem 0;
-    -ms-flex-align: end;
-    align-items: flex-end;
-    padding-right: 18px;
-    padding-left: 0;
-}
-
-.brs-avartar {
-    margin-top: .15rem;
-    margin-right: .75rem;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
-    width: 1.875rem;
-    height: 1.875rem;
-}
-
-.brs-message .brs-message-container {
-    overflow: hidden;
-    width: auto;
-    max-width: 100%;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    display: -ms-flexbox;
-    display: flex;
-}
-
-.brs-message .brs-info-line {
-    margin: 0 12px;
-    -ms-flex: 0 1 auto;
-    flex: 0 1 auto;
-    padding: .3125rem 0;
-    font-size: 12px;
-    color: #9a9a9a;
-    -ms-flex-align: center;
-    align-items: center;
-    display: -ms-flexbox;
-    display: flex;
-}
-
-.brs-message .brs-info-line .brs-info-line-content {
-    font-weight: 400;
-}
-
-.brs-message .brs-chats {
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-direction: column;
-    flex-direction: column;
-    -ms-flex-align: start;
-    align-items: flex-start;
-    width: 100%;
-}
-
-.brs-message .brs-chat-time {
-    position: absolute;
-    bottom: -6px;
-    right: 10px;
-    font-size: 10px;
-    color: #a0a0a0;
-}
-
-.brs-message .brs-chats>:not(:last-child) {
-    margin-bottom: 2px;
-}
-
-.brs-message .brs-chats .brs-chat {
-    border-radius: 5px;
-    max-width: 100%;
-    background-color: #f8f8f8;
-    padding: .5rem .75rem;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: keep-all;
-}
-
-.brs-message .brs-chats .brs-chat.brs-bot {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
-
-.brs-message .brs-chats .brs-chat.brs-bot:first-of-type {
-    border-top-left-radius: 20px;
-}
-
-.brs-message .brs-chats .brs-chat.brs-bot:last-of-type {
-    border-bottom-left-radius: 20px;
-}
-
-.brs-message .brs-chats .brs-chat.brs-user {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-}
-
-.brs-message .brs-chats .brs-chat.brs-user:first-of-type {
-    border-top-right-radius: 20px;
-}
-
-.brs-message .brs-chats .brs-chat.brs-user:last-of-type {
-    border-bottom-right-radius: 20px;
-}
-
-.brs-message.brs-end-user {
-    padding-right: 0px;
-}
-
-.brs-message.brs-end-user .brs-message-container,
-.brs-message.brs-end-user .brs-chats {
-    -ms-flex-pack: end;
-    justify-content: flex-end;
-    -ms-flex-align: end;
-    align-items: flex-end;
-    margin-left: auto;
-}
-
-.brs-message.brs-end-user .brs-chats {
-    padding-left: 60px;
-}
-
-.brs-messages-footer {
-    border-radius: 10px;
-}
-
-.brs-messages-footer .brs-composer {
-    background-color: #fff;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    position: relative;
-    padding: .5rem 0 0;
-}
-
-.brs-messages-footer .brs-flex-column {
-    -ms-flex-direction: column;
-    flex-direction: column;
-    display: -ms-flexbox;
-    display: flex;
-}
-
-.brs-messages-footer .brs-input-wrapper {
-    display: -ms-flexbox;
-    display: flex;
-}
-
-.brs-messages-footer textarea {
-    font-family: inherit;
-    overflow: auto;
-    color: inherit;
-    font: inherit;
-    margin: 0;
-}
-
-.brs-messages-footer textarea.brs-input {
-    width: 100%;
-    font-size: 1rem;
-    resize: none;
-    margin-bottom: .5rem;
-    padding: 7px 15px;
-    margin-bottom: 12px;
-    margin-left: 15px;
-    margin-right: 15px;
-    background: rgba(10, 91, 255, .03);
-    border: 1px solid #eee;
-    border-radius: 20px;
-    line-height: 1.2;
-    -webkit-appearance: none;
-    word-break: keep-all;
-    -ms-word-break: keep-all;
-}
-
-.brs-messages-footer textarea.brs-input:focus {
-    outline: none;
-}
 </style>

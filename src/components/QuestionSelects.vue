@@ -100,30 +100,4 @@ export default {
 </script>
 
 <style>
-.brs-selects-wrapper {
-  display: block;
-  text-align: right;
-}
-.brs-selects-wrapper .brs-selects {
-  display: inline-block;
-  margin: -3px -2px;
-  text-align: right;
-}
-.brs-selects-wrapper .brs-selects button {
-  display: inline-block;
-  margin: 3px 2px;
-  font-size: 1rem;
-  padding: .5rem 1rem;
-  border-radius: 20px;
-  transition: all .3s ease;
-  min-width: 9.85rem;
-  text-align: center;
-}
-.brs-selects-wrapper .brs-selects button:hover {
-  background-color: currentColor;
-}
-.brs-selects-wrapper .brs-selects button i {
-  margin-right: 5px;
-  font-size: 20px;
-}
 </style>
