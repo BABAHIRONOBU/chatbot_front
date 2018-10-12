@@ -26,10 +26,13 @@
                       <div class="brs-messages" style="background-color: rgb(255, 255, 255);">
                           <div class="brs-messages-content-wrapper">
                               <div v-for="(speaker, index) in conversation" :key="index" style="position: relative;">
-                                  <template v-if="speaker.bot">
+                                  <template v-if="speaker.is_bot">
                                       <bot-chat :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat>
-                                      <question-selects v-if="speaker.question" @selectquestion="selectQuestion"></question-selects>
-                                      <contents-card></contents-card>
+                                      <question-selects v-if="speaker.have_question_selects" @selectquestion="selectQuestion"></question-selects>
+                                      <!-- <contents-card v-if="(speaker.contents && speaker.contents.length)"></contents-card> -->
+                                      <contents-card v-if="speaker.contents"></contents-card>
+                                      <phone-number-input v-if="speaker.has_number_input" @inputnumber="inputNumber"></phone-number-input>
+                                      <selects v-if="speaker.have_selects" :selects="['배송 전', '배송 완료']" @select="select"></selects>
                                   </template>
                                   <!-- <bot-chat v-if="speaker.bot" :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat> -->
                                   <user-chat v-else :messages="speaker.chats" :minute="speaker.minute_time"></user-chat>
@@ -51,64 +54,54 @@ import UserChat from './UserChat.vue'
 import MessageInput from './MessageInput.vue'
 import QuestionSelects from './QuestionSelects.vue'
 import ContentsCard from './ContentsCard.vue'
+import PhoneNumberInput from './PhoneNumberInput.vue'
+import Selects from './Selects.vue'
 
+import {getCookie} from '../helper.js'
 import URLS from '../urls.js'
 
 export default {
   name: 'chat-bot',
-  components: {BotChat, UserChat, MessageInput, QuestionSelects, ContentsCard},
+  components: {BotChat, UserChat, MessageInput, QuestionSelects, ContentsCard, PhoneNumberInput, Selects},
   data() {
         return {
             chatbot: false,
             brs_style: 'width: 76px !important; height: 76px !important; bottom: 24px; right: 24px;',
             access_token: '',
-            bot_chat_types: {
-                plain_type: {
-                    joined_msg_list: [
-                        '아직 챗팅으로 대화할 수 없습니다.;홈 버튼을 눌러 다시 시작해 주세요.'
-                    ],
-                    question: false,
-                    orders: false,
-                    order_items: false
-                },
-                question_type: {
-                    joined_msg_list: [
-                        '고객님, 무엇을 도와 드릴까요?',
-                        '고객님이 필요한 정보를 찾아드리겠습니다.;아래의 유형 중 하나를 선택해주세요.',
-                        '24시간 쉬지 않고 최선을 다 하는 브루스 챗봇입니다.;어떤 도움이 필요하신가요?',
-                        '저는 고객님들의 보다 더 편한 쇼핑몰 사용을 도와드리고 있는 브루스 챗봇입니다.;언제든 필요하면 불러주세요.^^;무엇을 도와 드릴까요?'
-                    ],
-                    question: true,
-                    orders: false,
-                    order_items: false
-                },
-                orders_type: {
-                    joined_msg_list: [
-                        '주문 내역 조회 결과입니다.;아직 서버와의 통신이 이루어 지지 않아 데이터가 없습니다.;처음으로 돌아가시려면 홈 버튼을 눌러주세요.'
-                    ],
-                    question: false,
-                    orders: true,
-                    order_items: false
-                },
-                order_items_type: {
-                    joined_msg_list: [
-                        '주문 상세 내역입니다.'
-                    ],
-                    question: false,
-                    orders: false,
-                    order_items: true
-                }
+            member_id: '',
+            default_bot_messages: {
+                plain_type: [
+                    '브루스 챗봇을 이용해 주셔서 감사합니다.;홈 버튼을 눌러 다시 시작할 수 있습니다.'
+                ],
+                home_type: [
+                    '고객님, 무엇을 도와 드릴까요?',
+                    '고객님이 필요한 정보를 찾아드리겠습니다.;아래의 유형 중 하나를 선택해주세요.',
+                    '24시간 쉬지 않고 최선을 다 하는 브루스 챗봇입니다.;어떤 도움이 필요하신가요?',
+                    '저는 고객님들의 보다 더 편한 쇼핑몰 사용을 도와드리고 있는 브루스 챗봇입니다.;언제든 필요하면 불러주세요.^^;무엇을 도와 드릴까요?'
+                ],
+                number_type: [
+                    '고객님의 소중한 개인정보 보호를 위해 쇼핑몰에 등록하신 전화번호를 입력받고 있습니다.;입력받은 전화번호는 2시간 동안 기억됩니다.',
+                    '고객님께서 쇼핑몰에 등록한 전화번호를 입력해주세요.;개인정보 보호를 위한 것이며 2시간 동안 기억합니다.'
+                ],
+                contents_type: [
+                    '여기요',
+                    '여기 있습니다.'
+                ],
+                selects_type: [
+                    '고르세요',
+                    '하나만 골라주세요',
+                    '아래의 선택지 중 하나만 골라주세요'
+                ]
             },
-            conversation: [{
-                    bot: true,
+            conversation: [
+                {
+                    is_bot: true,
                     minute_time: new Date(new Date().setSeconds(0)),
                     chats: [
                         { time: new Date(), message: "안녕하세요 고객님! 브루스 챗봇입니다." },
                         { time: new Date(), message: "무엇을 도와 드릴까요?" }
                     ],
-                    question: true,
-                    orders: false,
-                    order_items: false
+                    have_question_selects: true
                 }
             ],
             contents: []
@@ -118,8 +111,7 @@ export default {
         headers: function() {
             return {
             'Authorization': 'Bearer ' + this.access_token,
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Content-Type': 'application/json'
             }
         }
     },
@@ -135,8 +127,10 @@ export default {
         },
 
         home: function() {
+            this.checkCookie();
+
             var user_msg = '처음으로';
-            var bot_chat_type = 'question_type';
+            var bot_chat_type = 'home_type';
 
             this.addChatSet(user_msg, bot_chat_type);
         },
@@ -146,22 +140,45 @@ export default {
             this.addChatSet(msg, bot_chat_type);
         },
 
-        selectQuestion: function(id, question) {
-            var bot_chat_type = 'orders_type';
-            this.addChatSet(question, bot_chat_type);
-            // this.fetchOrders('2018-09-01', '2018-10-08');
+        inputNumber: function(number, id) {
+            console.log(number);
+            console.log(id);
+            this.member_id = id;
         },
 
-        addChatSet: function(user_msg, bot_chat_type) {
+        selectQuestion: function(id, question) {
+            var bot_chat_type = 'contents_type';
+
+            // 테스트를 위한 것일 뿐 수정해야함
+            var contents = ['a', 'b'];
+
+            this.addChatSet(question, bot_chat_type, {contents: contents});
+        },
+
+        select: function(select) {
+            console.log(select);
+        },
+
+        addChatSet: function(user_msg, bot_chat_type, { joined_msg= '', contents=[] } = {}) {
             var now = new Date();
             var last_speaker = this.conversation[this.conversation.length - 1];
 
-            if (last_speaker.bot) {
-                last_speaker.question = false;
-                last_speaker.orders = false;
-                last_speaker.order_items = false;
+            if (last_speaker.is_bot) {
+                if (last_speaker.have_question_selects) {
+                    last_speaker.have_question_selects = false;
+                }
+                if (last_speaker.has_number_input) {
+                    last_speaker.has_number_input = false;
+                }
+                if (last_speaker.contents && last_speaker.contents.length) {
+                    last_speaker.contents = [];
+                }
+                if (last_speaker.have_selects) {
+                    last_speaker.have_selects = false;
+                }
 
                 this.addUserChatGroup(user_msg, now);
+
             } else {
                 var time_criteria = new Date(last_speaker.minute_time.valueOf());
                 var new_minute = time_criteria.getMinutes() + 1;
@@ -174,17 +191,27 @@ export default {
                     last_speaker.chats.push(user_chat);
                 }
             }
-            var type = this.bot_chat_types[bot_chat_type];
-            var joined_msg_list = type.joined_msg_list;
-            var joined_msg = joined_msg_list[Math.floor(Math.random() * joined_msg_list.length)];
+
+            // 챗봇을 새로 시작할 때 쿠키가 만료되었다면 다시 전화번호를 물어본다.
+            // if (bot_chat_type === 'home_type' && getCookie('rbPNum') === '') {
+            //     console.log('쿠키 없다');
+            // }
+
+            if (joined_msg === '') {
+                var joined_msg_list = this.default_bot_messages[bot_chat_type]
+                joined_msg = joined_msg_list[Math.floor(Math.random() * joined_msg_list.length)];
+            }
+
             switch (bot_chat_type) {
                 case 'plain_type'       :  this.addBotChatGroup(joined_msg, now);
                                            break;
-                case 'question_type'    :  this.addBotChatGroup(joined_msg, now, {question: true});
+                case 'home_type'        :  this.addBotChatGroup(joined_msg, now, {have_question_selects: true});
                                            break;
-                case 'orders_type'      :  this.addBotChatGroup(joined_msg, now, {orders: true});
+                case 'selects_type'     :  this.addBotChatGroup(joined_msg, now, {have_selects: true});
                                            break;
-                case 'order_items_type' :  this.addBotChatGroup(joined_msg, now, {order_items: true});
+                case 'contents_type'    :  this.addBotChatGroup(joined_msg, now, {contents: contents});
+                                           break;
+                case 'number_type'      :  this.addBotChatGroup(joined_msg, now, {has_number_input: true});
                                            break;
                 default                 :  this.addBotChatGroup(joined_msg, now);
             }
@@ -200,7 +227,7 @@ export default {
             this.conversation.push(new_speaker);
         },
 
-        addBotChatGroup: function(bot_joined_msg, time, { question=false, orders=false, order_items=false } = {}) {
+        addBotChatGroup: function(bot_joined_msg, time, { have_question_selects=false, have_selects=false, has_number_input=false, contents=[] } = {}) {
             var bot_chats = new Array();
             var bot_msgs = bot_joined_msg.split(';');
 
@@ -209,16 +236,36 @@ export default {
                 bot_chats.push(bot_chat);
             }
 
-            var new_speaker = { bot: true, minute_time: new Date(time.setSeconds(0)), chats: bot_chats, 
-                                question: question, orders: orders, order_items: order_items };
+            var new_speaker = { is_bot: true, minute_time: new Date(time.setSeconds(0)), chats: bot_chats };
+
+            if (have_question_selects) {
+                new_speaker.have_question_selects = true;
+            }
+            if (has_number_input) {
+                new_speaker.has_number_input = true;
+            }
+            if (contents && contents.length) {
+                new_speaker.contents = contents;
+            }
+            if (have_selects) {
+                new_speaker.have_selects = true;
+            }
+
             this.conversation.push(new_speaker);
         },
+
         scrollToEnd: function() {
             if (this.chatbot) {
                 var chats_wrapper = document.querySelector('.brs-messages');
                 chats_wrapper.scrollTop = chats_wrapper.scrollHeight;
             }
         },
+
+        checkCookie: function() {
+            if (getCookie('rbPNum') === '') {
+                this.member_id = '';
+            }
+        }
         // fetchOrders: function(start_date, end_date) {
         //     this.$axios.get(URLS.ORDERS, {
         //         params: {start_date: start_date, end_date: end_date},
@@ -235,6 +282,7 @@ export default {
     },
     mounted: function() {
         this.scrollToEnd();
+        this.checkCookie();
     },
     updated: function() {
         this.scrollToEnd();

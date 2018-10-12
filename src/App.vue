@@ -407,7 +407,6 @@ img.brs-chatbot-icon {
   overflow: hidden;
   box-shadow: 0 2px 10px 0 rgba(0, 0, 0, .1);
   background-color: #fff;
-  margin-bottom: 2rem;
 }
 .brs-card-head {
   display: -ms-flexbox;
@@ -551,5 +550,100 @@ img.brs-chatbot-icon {
 }
 .brs-card-select button:hover {
   border-bottom-color: currentColor;
+}
+.brs-phone-card-wrapper {
+  border: 1px solid #eee;
+  border-radius: .3125rem;
+  background-color: #fff;
+  box-shadow: 0 2px 0 0 #eee;
+  margin: 0 1rem 0 2.625rem;
+  padding: .85rem 1rem;
+}
+.brs-phone-card-wrapper .brs-phone-card {
+  width: 100%;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+.brs-phone-card-wrapper .brs-phone-card .brs-phone {
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
+  color: #9a9a9a;
+  font-size: .8rem;
+  font-weight: 600;
+}
+.brs-phone-card-wrapper .brs-phone-card .brs-phone-form {
+  width: 100%;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+.brs-phone-form .brs-phone-input-wrapper {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+.brs-phone-form .brs-phone-input-wrapper .brs-phone-input {
+  border: 2px solid #eee;
+  border-right: 0;
+  border-radius: .3125rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 100%;
+  position: relative;
+  margin: .39rem 0;
+  animation-duration: .4s;
+  animation-fill-mode: both;
+  -ms-flex-align: center;
+  align-items: center;
+  display: -ms-flexbox;
+  display: flex;
+}
+.brs-phone-form .brs-phone-input-wrapper .brs-phone-input.active {
+  border-color: inherit;
+}
+.brs-phone-form .brs-phone-input-wrapper .brs-phone-input input {
+  outline: none;
+  width: 100%;
+  height: 1.7rem;
+  border-radius: .3125rem;
+  color: #000;
+  border: none;
+  font-size: 1rem;
+  -ms-flex: 1;
+  flex: 1;
+  font-weight: 400;
+  padding: 0 1.15rem;
+}
+.brs-phone-form .brs-phone-input-wrapper .brs-phone-invalid {
+  color: #ff7f93;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.brs-phone-form button {
+  margin: .39rem 0;
+  padding: 0 .35rem;
+  width: 100px;
+  min-height: 25px;
+  height: 1.95rem;
+  border: none;
+  border-radius: .3125rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  position: relative;
+  text-align: center;
+  font-weight: 600;
+  font-size: .875rem;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.brs-phone-form button:hover {
+  filter: brightness(90%);
 }
 </style>
