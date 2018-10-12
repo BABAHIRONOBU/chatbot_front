@@ -1,10 +1,7 @@
 var CAFE24_BASE_URL = 'https://blackrubydev.cafe24api.com/api/v2/admin';
-var BRS_BASE_URL = '';
+var BRS_BASE_URL = 'https://find-issue.com/api/v1.0';
 
 export default {
-    ORDERS: `${CAFE24_BASE_URL}/orders/`,
-
-    ORDERS_ITEMS: `${CAFE24_BASE_URL}/orsers/{order_id}/items/`,
-
-    PRODUCTS: `${CAFE24_BASE_URL}/products`
+  MEMBER_ID: `${BRS_BASE_URL}/user/`,
+  ORDERS: `${BRS_BASE_URL}/ondelivering/`
 }
