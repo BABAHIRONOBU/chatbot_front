@@ -408,7 +408,7 @@ img.brs-chatbot-icon {
   box-shadow: 0 2px 10px 0 rgba(0, 0, 0, .1);
   background-color: #fff;
 }
-.brs-card-head {
+/* .brs-card-head {
   display: -ms-flexbox;
   display: flex;
   -ms-flex-pack: justify;
@@ -476,7 +476,6 @@ img.brs-chatbot-icon {
   justify-content: space-between;
   -ms-flex-align: center;
   align-items: center;
-  /* margin-top: 1.2rem; */
   margin-bottom: .5rem;
   margin-right: 1rem;
   margin-left: 1rem;
@@ -550,7 +549,7 @@ img.brs-chatbot-icon {
 }
 .brs-card-select button:hover {
   border-bottom-color: currentColor;
-}
+} */
 .brs-phone-card-wrapper {
   border: 1px solid #eee;
   border-radius: .3125rem;

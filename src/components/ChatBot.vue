@@ -28,9 +28,10 @@
                               <div v-for="(speaker, index) in conversation" :key="index" style="position: relative;">
                                   <template v-if="speaker.is_bot">
                                       <bot-chat :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat>
-                                      <question-selects v-if="speaker.have_question_selects" @selectquestion="selectQuestion"></question-selects>
+                                      <!-- <question-selects v-if="speaker.have_question_selects" @selectquestion="selectQuestion"></question-selects> -->
                                       <!-- <contents-card v-if="(speaker.contents && speaker.contents.length)"></contents-card> -->
-                                      <contents-card v-if="speaker.contents"></contents-card>
+                                      <!-- <contents-card v-if="speaker.contents"></contents-card> -->
+                                      <contents-card></contents-card>
                                       <phone-number-input v-if="speaker.has_number_input" @inputnumber="inputNumber"></phone-number-input>
                                       <selects v-if="speaker.have_selects" :selects="['배송 전', '배송 완료']" @select="select"></selects>
                                   </template>
