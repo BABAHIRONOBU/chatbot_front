@@ -28,12 +28,12 @@
                               <div v-for="(speaker, index) in conversation" :key="index" style="position: relative;">
                                   <template v-if="speaker.is_bot">
                                       <bot-chat :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat>
-                                      <!-- <question-selects v-if="speaker.have_question_selects" @selectquestion="selectQuestion"></question-selects> -->
-                                      <!-- <contents-card v-if="(speaker.contents && speaker.contents.length)"></contents-card> -->
+                                      <question-selects v-if="speaker.have_question_selects" @selectquestion="selectQuestion"></question-selects>
+                                      <contents-card v-if="(speaker.contents && speaker.contents.length)" :contents="speaker.contents" :contents_type="speaker.contents_type"></contents-card>
                                       <!-- <contents-card v-if="speaker.contents"></contents-card> -->
-                                      <contents-card></contents-card>
+                                      <!-- <contents-card></contents-card> -->
                                       <phone-number-input v-if="speaker.has_number_input" @inputnumber="inputNumber"></phone-number-input>
-                                      <selects v-if="speaker.have_selects" :selects="['배송 전', '배송 완료']" @select="select"></selects>
+                                      <selects v-if="(speaker.select_ids &&speaker.select_ids.length)" :select_ids="speaker.select_ids" @select="select"></selects>
                                   </template>
                                   <!-- <bot-chat v-if="speaker.bot" :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat> -->
                                   <user-chat v-else :messages="speaker.chats" :minute="speaker.minute_time"></user-chat>
@@ -105,7 +105,8 @@ export default {
                     have_question_selects: true
                 }
             ],
-            contents: []
+            contents: [],
+            select_ids: []
         }
     },
     computed: {
@@ -148,19 +149,32 @@ export default {
         },
 
         selectQuestion: function(id, question) {
-            var bot_chat_type = 'contents_type';
+            if (id === '1') {
+                var bot_chat_type = 'selects_type';
+                this.select_ids.push('a', 'b');
 
-            // 테스트를 위한 것일 뿐 수정해야함
-            var contents = ['a', 'b'];
-
-            this.addChatSet(question, bot_chat_type, {contents: contents});
+                this.addChatSet(question, bot_chat_type, {joined_msg: '배송전, 배송완료 중 원하는 선택지를 골라주세요.', select_ids: this.select_ids});
+            }
         },
 
-        select: function(select) {
-            console.log(select);
-        },
+        select: function(id, select) {
+            this.select_ids = [];
+            if (id === 'a') {
+                var bot_chat_type = 'contents_type';
+                var contents_type = 'orders';
+                var query = {src_name: 'blackrubydev_1539673352901782', member_id: 'test'};
 
-        addChatSet: function(user_msg, bot_chat_type, { joined_msg= '', contents=[] } = {}) {
+                this.delivering(query, select, contents_type, bot_chat_type);
+            } else if (id === 'b') {
+                var bot_chat_type = 'contents_type';
+                var contents_type = 'orders';
+                var query = {src_name: 'blackrubydev_1539673352901782', member_id: 'test', page: '1'};
+
+                this.delivered(query, select, contents_type, bot_chat_type);
+            }
+        },
+        // joined_msg를 list로 바꿔서 원하는 메세지 여러개를 입력할 수 있게 할까? 그 중 랜덤으로 메세지가 선택이 되는 것이고
+        addChatSet: function(user_msg, bot_chat_type, { joined_msg= '', contents=[], contents_type='', select_ids=[] } = {}) {
             var now = new Date();
             var last_speaker = this.conversation[this.conversation.length - 1];
 
@@ -173,9 +187,10 @@ export default {
                 }
                 if (last_speaker.contents && last_speaker.contents.length) {
                     last_speaker.contents = [];
+                    last_speaker.contetns_type = '';
                 }
-                if (last_speaker.have_selects) {
-                    last_speaker.have_selects = false;
+                if (last_speaker.select_ids && last_speaker.select_ids.length) {
+                    last_speaker.select_ids = [];
                 }
 
                 this.addUserChatGroup(user_msg, now);
@@ -208,9 +223,9 @@ export default {
                                            break;
                 case 'home_type'        :  this.addBotChatGroup(joined_msg, now, {have_question_selects: true});
                                            break;
-                case 'selects_type'     :  this.addBotChatGroup(joined_msg, now, {have_selects: true});
+                case 'selects_type'     :  this.addBotChatGroup(joined_msg, now, {select_ids: select_ids});
                                            break;
-                case 'contents_type'    :  this.addBotChatGroup(joined_msg, now, {contents: contents});
+                case 'contents_type'    :  this.addBotChatGroup(joined_msg, now, {contents: contents, contents_type: contents_type});
                                            break;
                 case 'number_type'      :  this.addBotChatGroup(joined_msg, now, {has_number_input: true});
                                            break;
@@ -223,12 +238,11 @@ export default {
             var user_chat = { time: new Date(time.valueOf()), message: user_msg };
             user_chats.push(user_chat);
 
-            var new_speaker = { bot: false, minute_time: new Date(time.setSeconds(0)), chats: user_chats, 
-                                question: false, orders: false, order_items: false };
+            var new_speaker = { minute_time: new Date(time.setSeconds(0)), chats: user_chats };
             this.conversation.push(new_speaker);
         },
 
-        addBotChatGroup: function(bot_joined_msg, time, { have_question_selects=false, have_selects=false, has_number_input=false, contents=[] } = {}) {
+        addBotChatGroup: function(bot_joined_msg, time, { have_question_selects=false, has_number_input=false, contents=[], contents_type='', select_ids=[] } = {}) {
             var bot_chats = new Array();
             var bot_msgs = bot_joined_msg.split(';');
 
@@ -247,9 +261,10 @@ export default {
             }
             if (contents && contents.length) {
                 new_speaker.contents = contents;
+                new_speaker.contents_type = contents_type
             }
-            if (have_selects) {
-                new_speaker.have_selects = true;
+            if (select_ids && select_ids.length) {
+                new_speaker.select_ids = select_ids;
             }
 
             this.conversation.push(new_speaker);
@@ -266,7 +281,41 @@ export default {
             if (getCookie('rbPNum') === '') {
                 this.member_id = '';
             }
+        },
+        delivering: function(query, select, ct, bct) {
+            this.$axios.get(URLS.DELIVERING, {
+                params: query,
+                headers: this.headers
+            })
+            .then((response) => {
+                console.log(response);
+                this.contents = response.data.orders;
+                this.addChatSet(select, bct, {joined_msg:'배송전인 주문 조회 결과입니다.', contents: this.contents, contents_type: ct});
+            })
+            .catch((msg) => {
+                console.log('error', msg);
+            })
+        },
+        delivered: function(query, select, ct, bct) {
+            this.$axios.get(URLS.DELIVERED, {
+                params: query,
+                headers: this.headers
+            })
+            .then((response) => {
+                console.log(response);
+                this.contents = response.data.orders;
+                this.addChatSet(select, bct, {joined_msg:'배송완료된 주문 조회 결과입니다.', contents: this.contents, contents_type: ct});
+            })
+            .catch((msg) => {
+                console.log('error', msg);
+            })
         }
+        // getDelivered: function(query) {
+        //     this.$axios.get(URLS.DELIVERED, {
+        //         params: query,
+        //         headers: this.headers
+        //     })
+        // }
         // fetchOrders: function(start_date, end_date) {
         //     this.$axios.get(URLS.ORDERS, {
         //         params: {start_date: start_date, end_date: end_date},

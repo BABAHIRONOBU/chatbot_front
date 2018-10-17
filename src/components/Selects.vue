@@ -1,8 +1,8 @@
 <template>
   <div class="brs-selects-wrapper">
     <div class="brs-selects">
-      <button v-for="(select_data, index) in selects_data" :key="index" @mouseover="hover" @click="select" @mouseout="hover_out" class="brs-select" :style="out_color">
-        {{select_data}}
+      <button v-for="select_data in selects_data" :key="select_data.id" :name="select_data.id" @mouseover="hover" @click="select" @mouseout="hover_out" class="brs-select" :style="out_color">
+        {{select_data.text}}
       </button>
     </div>
   </div>
@@ -15,7 +15,21 @@ export default {
     return {
       out_color: "color: rgb(10, 91, 255); border: 1px solid rgb(10, 91, 255); background-color: rgb(255, 255, 255);", 
       hover_color: "color: rgb(255, 255, 255); border: 1px solid rgb(10, 91, 255); background-color: rgb(10, 91, 255);",
-      selects_data: this.selects
+      selects_list: [
+        {
+          id: 'a',
+          text: '배송전'
+        },
+        {
+          id: 'b',
+          text: '배송완료'
+        },
+      ]
+    }
+  },
+  computed: {
+    selects_data() {
+      return this.selects_list.filter(s => this.select_ids.includes(s.id));
     }
   },
   methods: {
@@ -34,11 +48,11 @@ export default {
       }
     },
     select(e) {
-      this.$emit('select', e.currentTarget.innerText.trim());
+      this.$emit('select', e.currentTarget.getAttribute('name'), e.currentTarget.innerText.trim());
     }
   },
   props: {
-    selects: { type: Array, required: true }
+    select_ids: { type: Array, required: true }
   }
 }
 </script>

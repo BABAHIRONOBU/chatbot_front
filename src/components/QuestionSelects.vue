@@ -1,7 +1,7 @@
 <template>
   <div class="brs-selects-wrapper">
     <div class="brs-selects">
-      <button v-for="select in selects_data" :key="select.id" :name="select.id" @mouseover="hover" @click="select_question" @mouseout="hover_out" class="brs-select" :style="set_color(select.isDisabled)" :disabled="select.isDisabled">
+      <button v-for="select in selects_data" :key="select.id" :name="select.id" @mouseover="hover" @click="select_question" @mouseout="hover_out" class="brs-select-fixed" :style="set_color(select.isDisabled)" :disabled="select.isDisabled">
         <i><font-awesome-icon :icon="select.icon"></font-awesome-icon></i>
         {{select.question}}
       </button>
