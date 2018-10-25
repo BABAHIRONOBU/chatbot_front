@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCommentAlt, faHome, faTimes, faTruck, faUndoAlt, faTimesCircle, faWonSign, faPiggyBank, faBox, faShoppingCart, faCalendarAlt, faArchive } from '@fortawesome/free-solid-svg-icons'
+import { faCommentAlt, faHome, faTimes, faTruck, faUndoAlt, faTimesCircle, faWonSign, faPiggyBank, faBox, faShoppingCart, faCalendarAlt, faArchive, faSignOutAlt, faSignInAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import axios from 'axios'
 require('es6-promise').polyfill()
 
-library.add(faCommentAlt, faHome, faTimes, faTruck, faUndoAlt, faTimesCircle, faWonSign, faPiggyBank, faBox, faShoppingCart, faCalendarAlt, faArchive)
+library.add(faCommentAlt, faHome, faTimes, faTruck, faUndoAlt, faTimesCircle, faWonSign, faPiggyBank, faBox, faShoppingCart, faCalendarAlt, faArchive, faSignOutAlt, faSignInAlt)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

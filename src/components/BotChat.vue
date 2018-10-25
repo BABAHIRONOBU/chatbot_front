@@ -8,7 +8,7 @@
       <div class="brs-message-container">
           <div class="brs-info-line">
               <div class="brs-info-line-content">
-                  BRS Chatbot
+                  RubyBot
               </div>
           </div>
           <div class="brs-chats">

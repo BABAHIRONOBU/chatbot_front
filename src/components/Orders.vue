@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="brs-card-footer">
-        <a href="#"><button type="button" style="color: rgb(10, 91, 255);">상세보기 ></button></a>
+        <a :href="orderDetailPage(order.order_id)"><button type="button" style="color: rgb(10, 91, 255);">상세보기 ></button></a>
       </div>
     </div>
   </div>
@@ -55,6 +55,9 @@ export default {
     },
     decodeUTF8(str) {
       return unescape(str);
+    },
+    orderDetailPage(order_id) {
+      return `/myshop/order/detail.html?order_id=${order_id}`
     }
   }
 }

@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { getCookie, setCookie } from '../helper.js'
+import URLS from '../urls.js'
 
 export default {
   name: 'PhoneNumberInput',
@@ -39,24 +39,62 @@ export default {
       this.error = false;
     },
     submit: function(e) {
-      if (this.phone_number.length == 0) {
+      if (this.emptyNumber()) {
         this.invalid_msg = '전화번호를 입력해주세요';
         this.error = true;
         e.target.children[0].children[0].children[0].focus();
       }
-      else if (!/^\d+$/.test(this.phone_number)) {
+      else if (this.notValidNumber()) {
         this.invalid_msg = '숫자만 입력해주세요';
         this.error = true;
         e.target.children[0].children[0].children[0].focus();
       } else {
-        this.invalid_msg = '';
-        this.error = false;
-        // api 통신 후 member_id를 쿠키에 저장해야 한다.
-        setCookie('rbPNum', this.phone_number, 2);
-        this.member_id = 'test';
-        this.$emit('inputnumber', this.phone_number, this.member_id);
-        this.phone_number = '';
+        this.validNumber();
       }
+    },
+    emptyNumber: function() {
+      return this.phone_number.length == 0
+    },
+    notValidNumber: function() {
+      return !/^\d+$/.test(this.phone_number)
+    },
+    validNumber: function() {
+      var query = {src_name: 'blackrubydev_1539854240937634', cellphone: this.phone_number}
+      console.log(query);
+      this.$axios.get(URLS.MEMBER_ID, {
+        params: query
+      })
+      .then((response) => {
+        console.log(response);
+        if (response.data.customers.length) {
+          this.invalid_msg = '';
+          this.error = false;
+          this.member_id = response.data.customers[0].member_id;
+          this.$emit('inputnumber', this.member_id);
+        } else {
+          this.invalid_msg = '존재하지 않는 회원입니다.';
+          this.error = true;
+        }
+      })
+      .catch((msg) => {
+        console.log('error', msg);
+        this.invalid_msg = '서버통신 에러!';
+        this.error = true;
+      })
+      this.phone_number = '';
+    },
+    getMemberID: function(query) {
+        this.$axios.get(URLS.MEMBER_ID, {
+            params: query,
+            headers: this.headers
+        })
+        .then((response) => {
+            console.log(response);
+            this.member_id = response.data.customers[0].member_id;
+        })
+        .catch((msg) => {
+            console.log('error', msg);
+        })
     }
   }
 }

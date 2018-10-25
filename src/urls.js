@@ -4,5 +4,6 @@ var BRS_BASE_URL = 'https://find-issue.com/api/v1.0';
 export default {
   MEMBER_ID: `${BRS_BASE_URL}/user/`,
   DELIVERING: `${BRS_BASE_URL}/ondelivering/`,
-  DELIVERED: `${BRS_BASE_URL}/delivered/`
+  DELIVERED: `${BRS_BASE_URL}/delivered/`,
+  ORDERS: `${BRS_BASE_URL}/getdelivery/`
 }
