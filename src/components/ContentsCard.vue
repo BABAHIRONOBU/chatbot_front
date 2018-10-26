@@ -8,7 +8,7 @@
         </div>
       </div>
       <div class="brs-card-body">
-        <orders v-if="contents_type === 'orders'" :orders="data.orders"></orders>
+        <orders v-if="contents_type === 'orders_type'" :orders="contents.orders"></orders>
         <!-- <div class="brs-card-main">
           <div class="brs-card-main-content">
             <div class="brs-order-items">
@@ -46,7 +46,7 @@
         </div> -->
       </div>
     </div>
-    <div class="brs-card-more">
+    <div v-if="contents.next_url" class="brs-card-more">
       <button type="button" @click="more()">더 보기</button>
     </div>
   </div>
@@ -58,10 +58,24 @@ import Orders from './Orders.vue'
 export default {
   name: 'contents-card',
   components: { Orders },
-
+  computed: {
+    contents_type: function() {
+      if (this.contents.hasOwnProperty('orders')) {
+        return 'orders_type'
+      } else {
+        return ''
+      }
+    }
+  },
   props: {
-    contents_type: { type: String, required: true },
-    data: { type: Object, required: true }
+    contents: { type: Object, required: true }
+  },
+  methods: {
+    more: function() {
+      console.log(this.contents.next_url);
+      console.log(this.contents_type);
+      this.$emit('more', this.contents_type, this.contents.next_url);
+    }
   }
 }
 </script>

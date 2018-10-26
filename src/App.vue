@@ -203,11 +203,12 @@ img.brs-chatbot-icon {
 }
 
 .brs-messanger-body .brs-login-message h1 {
-    font-size: 22px;
+    font-size: 1.325rem;
     margin: 15px 0;
 }
 
 .brs-messanger-body .brs-login-message p {
+    font-size: .9125rem;
     margin: 0;
     margin-bottom: 10px;
 }
@@ -466,6 +467,10 @@ img.brs-chatbot-icon {
 
 .brs-card-more button {
     margin-top: .75rem;
+    padding: .125rem 1rem;
+    border-radius: 20px;
+    border: 1px solid #000;
+    background-color: #fff;
 }
 
 .brs-card-head {

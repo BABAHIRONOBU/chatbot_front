@@ -14,18 +14,20 @@ export default {
   name: 'user-chat',
   data() {
       return {
-          chats: this.messages,
-          minute_time: this.minute
+          chats: this.messages
       }
   },
   computed: {
+      minute_time: function() {
+          return new Date(this.minute);
+      },
       minute_time_str: function() {
           return this.minute_time.toLocaleTimeString().split(':').slice(0, 2).join(':');
       }
   },
   props: {
       messages: { type: Array, required: true },
-      minute: { type: Date, required: true }
+      minute: { required: true }
   }
 }
 </script>

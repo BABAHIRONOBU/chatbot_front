@@ -23,13 +23,17 @@ export default {
   name: 'bot-chat',
   data() {
       return {
-          chats: this.messages,
-          minute_time: this.minute
+          chats: this.messages
+      }
+  },
+  computed: {
+      minute_time: function() {
+          return new Date(this.minute);
       }
   },
   props: {
       messages: { type: Array, required: true },
-      minute: { type: Date, required: true }
+      minute: { required: true }
   }
 }
 </script>

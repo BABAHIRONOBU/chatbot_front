@@ -30,7 +30,7 @@
                                 <template v-if="speaker.is_bot">
                                     <bot-chat :messages="speaker.chats" :minute="speaker.minute_time"></bot-chat>
                                     <question-selects v-if="speaker.have_question_selects" @selectquestion="selectQuestion"></question-selects>
-                                    <contents-card v-if="(speaker.contents && speaker.contents.length)" :data="speaker.contents" :contents_type="speaker.contents_type"></contents-card>
+                                    <contents-card v-if="(speaker.contents && Object.keys(speaker.contents).length)" :contents="speaker.contents" @more="more"></contents-card>
                                     <!-- <contents-card v-if="speaker.contents"></contents-card> -->
                                     <!-- <contents-card></contents-card> -->
                                     <phone-number-input v-if="speaker.has_number_input" @inputnumber="inputNumber"></phone-number-input>
@@ -104,17 +104,12 @@ export default {
                 ]
             },
             conversation: [],
-            contents: [],
             select_ids: []
-        }
-    },
-    computed: {
-        start_msg: function() {
-            return `안녕하세요 ${this.member_name}고객님! 루비봇입니다. 무엇을 도와드릴까요?`
         }
     },
     watch: {
         conversation: function(new_conversation) {
+            console.log('대화 변경 감지');
             if (this.login) {
                 sessionStorage.setItem('brs_conversation', JSON.stringify(new_conversation));
             } else {
@@ -151,14 +146,8 @@ export default {
 
         selectQuestion: function(id, question) {
             if (id === '1') {
-                var query = {src_name: 'brs_chatbot.js', member_id: 'test', page: '1', per_page: '2'};
-                var bot_chat_type = 'contents_type';
-                var contents_type = 'orders'
-                this.selectOrders(query, question, contents_type, bot_chat_type);
-                // var bot_chat_type = 'selects_type';
-                // this.select_ids.push('a', 'b');
-
-                // this.addChatSet(question, bot_chat_type, {joined_msg: '배송전, 배송완료 중 원하는 선택지를 골라주세요.', select_ids: this.select_ids});
+                var query = {src_dir_name: 'blackrubydev_1', member_id: 'test', page: '1', per_page: '2'};
+                this.selectOrders(query, question);
             }
         },
 
@@ -178,8 +167,9 @@ export default {
                 this.delivered(query, select, contents_type, bot_chat_type);
             }
         },
+
         // joined_msg를 list로 바꿔서 원하는 메세지 여러개를 입력할 수 있게 할까? 그 중 랜덤으로 메세지가 선택이 되는 것이고
-        addChatSet: function(user_msg, bot_chat_type, { joined_msg= '', contents=[], contents_type='', select_ids=[] } = {}) {
+        addChatSet: function(user_msg, bot_chat_type, { joined_msg= '', contents={}, select_ids=[] } = {}) {
             var now = new Date();
             var last_speaker = this.conversation[this.conversation.length - 1];
 
@@ -190,9 +180,8 @@ export default {
                 if (last_speaker.has_number_input) {
                     last_speaker.has_number_input = false;
                 }
-                if (last_speaker.contents && last_speaker.contents.length) {
-                    last_speaker.contents = [];
-                    last_speaker.contents_type = '';
+                if (last_speaker.contents && Object.keys(last_speaker.contents).length) {
+                    last_speaker.contents = {};
                 }
                 if (last_speaker.select_ids && last_speaker.select_ids.length) {
                     last_speaker.select_ids = [];
@@ -225,7 +214,7 @@ export default {
                                            break;
                 case 'selects_type'     :  this.addBotChatGroup(joined_msg, now, {select_ids: select_ids});
                                            break;
-                case 'contents_type'    :  this.addBotChatGroup(joined_msg, now, {contents: contents, contents_type: contents_type});
+                case 'contents_type'    :  this.addBotChatGroup(joined_msg, now, {contents: contents});
                                            break;
                 case 'number_type'      :  this.addBotChatGroup(joined_msg, now, {has_number_input: true});
                                            break;
@@ -242,7 +231,7 @@ export default {
             this.conversation.push(new_speaker);
         },
 
-        addBotChatGroup: function(bot_joined_msg, time, { have_question_selects=false, has_number_input=false, contents=[], contents_type='', select_ids=[] } = {}) {
+        addBotChatGroup: function(bot_joined_msg, time, { have_question_selects=false, has_number_input=false, contents={}, select_ids=[] } = {}) {
             var bot_chats = new Array();
             var bot_msgs = bot_joined_msg.split(';');
 
@@ -259,9 +248,8 @@ export default {
             if (has_number_input) {
                 new_speaker.has_number_input = true;
             }
-            if (contents && contents.length) {
+            if (contents && Object.keys(contents).length) {
                 new_speaker.contents = contents;
-                new_speaker.contents_type = contents_type
             }
             if (select_ids && select_ids.length) {
                 new_speaker.select_ids = select_ids;
@@ -271,9 +259,11 @@ export default {
         },
 
         addBaseChat: function() {
-            var now = new Date();
-            var joined_msg = `안녕하세요 ${this.member_name}고객님! 루비봇입니다. 무엇을 도와드릴까요?`;
-            this.addBotChatGroup(joined_msg, now, {have_question_selects:true});
+            if (this.login && this.conversation.length === 0) {
+                var now = new Date();
+                var joined_msg = `안녕하세요 ${this.member_name}고객님! 루비봇입니다. 무엇을 도와드릴까요?`;
+                this.addBotChatGroup(joined_msg, now, {have_question_selects:true});
+            }
         },
 
         scrollToEnd: function() {
@@ -282,46 +272,47 @@ export default {
                 chats_wrapper.scrollTop = chats_wrapper.scrollHeight;
             }
         },
-        delivering: function(query, select, ct, bct) {
-            this.$axios.get(URLS.DELIVERING, {
-                params: query
-            })
-            .then((response) => {
-                console.log(response);
-                this.data = response.data.orders;
-                this.addChatSet(select, bct, {joined_msg:'배송전인 주문 조회 결과입니다.', contents: this.data, contents_type: ct});
-            })
-            .catch((msg) => {
-                console.log(msg);
-            })
-        },
-        delivered: function(query, select, ct, bct) {
-            this.$axios.get(URLS.DELIVERED, {
-                params: query
-            })
-            .then((response) => {
-                console.log(response);
-                this.contents = response.data.orders;
-                this.addChatSet(select, bct, {joined_msg:'배송완료된 주문 조회 결과입니다.', contents: this.contents, contents_type: ct});
-            })
-            .catch((msg) => {
-                console.log(msg);
-            })
-        },
-        selectOrders: function(query, question, contents_type, bot_chat_type) {
+        selectOrders: function(query, question) {
             this.$axios.get(URLS.ORDERS, {
                 params: query
             })
             .then((response) => {
                 console.log(response);
-                this.contents = response.data;
-                this.addChatSet(question, bot_chat_type, {joined_msg: '조회 결과입니다.', contents: this.contents, contents_type: contents_type});
+                var bot_chat_type = 'contents_type';
+                var contents = response.data;
+                this.addChatSet(question, bot_chat_type, {joined_msg: '조회 결과입니다.', contents: contents});
             })
             .catch((msg) => {
                 console.log(msg);
                 this.addChatSet(question, 'plain_type', {joined_msg: '서버 통신에 문제가 생겼습니다. 관리자에게 문의해주세요.;홈버튼을 눌러 처음으로 돌아갈 수 있습니다.'});
             })
         },
+
+        more: function(contents_type, next_url) {
+            var last_speaker = this.conversation[this.conversation.length - 1];
+
+            if (last_speaker.contents && Object.keys(last_speaker.contents).length){
+
+                if (contents_type === 'orders_type') {
+
+                    this.$axios.get(next_url)
+                    .then((response) => {
+                        console.log(response);
+                        if (response.data.next_url) {
+                            last_speaker.contents.next_url = response.data.next_url;
+                        } else {
+                            last_speaker.contents.next_url = '';
+                        }
+                        last_speaker.contents.orders.push(...response.data.orders);
+                        sessionStorage.setItem('brs_conversation', JSON.stringify(this.conversation));
+                    })
+                    .catch((msg) => {
+                        console.log(msg);
+                    })
+                }
+            }
+        },
+
         // shop_no가 2, 3... 일 때는 key가 member_1이 아니다. 현재 shop_no을 확인한 후 key를 정해야 한다.
         getMemeberInfo: function() {
             console.log('로그인 했나 확인 중');
@@ -332,11 +323,24 @@ export default {
                 this.member_id = member_info.data.member_id;
                 this.member_name = member_info.data.name;
                 this.login = true;
+            } else {
+                console.log('로그인 안돼있어서 저장된 대화 삭제');
+                sessionStorage.removeItem('brs_conversation');
+            }
+        },
+
+        getConversation: function() {
+            var conversation_raw = sessionStorage.getItem('brs_conversation');
+
+            if (conversation_raw) {
+                var conversation = JSON.parse(conversation_raw);
+                this.conversation = conversation;
             }
         }
     },
     created: function() {
         this.getMemeberInfo();
+        this.getConversation();
     },
     mounted: function() {
         this.addBaseChat();
